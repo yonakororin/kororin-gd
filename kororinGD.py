@@ -1,10 +1,17 @@
 
-import json
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 
+# サービスアカウントのキーファイルから認証情報を生成する
+def CreateCredential(service_account_key):
+	return Credentials.from_service_account_file(service_account_key)
+
+# 認証情報からGoogleDriveアクセスのためのサービス生成
+def CreateServiceDrive(creds):
+	return build("drive", "v3", credentials=creds)
+
 # 作成されたdriveサービス以下のファイルリストを取得する
-def gdFolderList(drive):
+def FolderList(drive):
 	results = drive.files().list(
 		q = "mimeType = 'application/vnd.google-apps.folder'",
 		fields="files(id,name)").execute()
@@ -16,8 +23,8 @@ def gdFolderList(drive):
 
 # driveサービス内にある名前がfolderのフォルダIdを取得する
 # なければ-1
-def gdFolderId(drive, folder):
-	files = gdFolderList(drive)
+def FolderId(drive, folder):
+	files = FolderList(drive)
 	print(files)
 	if folder in files:
 		return files[folder]
@@ -27,8 +34,8 @@ def gdFolderId(drive, folder):
 # 指定フォルダ内にファイルが存在しているか確認する
 # あったらそのファイルのIDを返す
 # なければNone	
-def gdExists(drive, folder, fname):
-	fid = gdFolderId(drive, folder)
+def Exists(drive, folder, fname):
+	fid = FolderId(drive, folder)
 	if fid == -1:
 		return None 
 	results = drive.files().list(
@@ -46,12 +53,12 @@ def gdExists(drive, folder, fname):
 # 成功したらそのシートのIDを返す
 # 失敗したらNone
 # なお、すでに存在していたらそのシートのIDを返す
-def gdCreateSpreadSheet(drive, folder, sheetname):
-	fid = gdFolderId(drive, folder)
+def CreateSpreadSheet(drive, folder, sheetname):
+	fid = FolderId(drive, folder)
 	if fid == -1:
 		return None
 
-	check = gdExists(drive, folder, sheetname)
+	check = Exists(drive, folder, sheetname)
 	if check:
 		return check
 
