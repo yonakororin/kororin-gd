@@ -1,4 +1,3 @@
-
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 
@@ -7,7 +6,7 @@ def CreateCredential(service_account_key):
 	return Credentials.from_service_account_file(service_account_key)
 
 # 認証情報からGoogleDriveアクセスのためのサービス生成
-def CreateServiceDrive(creds):
+def Service(creds):
 	return build("drive", "v3", credentials=creds)
 
 # 作成されたdriveサービス以下のファイルリストを取得する
